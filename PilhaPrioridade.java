@@ -1,28 +1,55 @@
 public class PilhaPrioridade {
-    private PilhaProcesso urgente = new PilhaProcesso();
-    private PilhaProcesso normal = new PilhaProcesso();
-    private PilhaProcesso baixa = new PilhaProcesso();
+    private final PilhaProcesso baixa;
+    private final PilhaProcesso normal;
+    private final PilhaProcesso urgente;
 
-    public void push(Processo p) { // [cite: 80, 83]
-        if (p.getPrioridade() == 3) urgente.push(p);
-        else if (p.getPrioridade() == 2) normal.push(p);
-        else baixa.push(p);
+    public PilhaPrioridade() {
+        this.baixa   = new PilhaProcesso();
+        this.normal  = new PilhaProcesso();
+        this.urgente = new PilhaProcesso();
     }
 
-    public Processo pop() { // [cite: 84]
-        if (!urgente.estaVazia()) return urgente.pop();
-        if (!normal.estaVazia()) return normal.pop();
-        if (!baixa.estaVazia()) return baixa.pop();
-        throw new PilhaVaziaException("Nenhum processo pendente em nenhuma prioridade!");
+    public void push(Processo processo) {
+        switch (processo.getPrioridade()) {
+            case 1: baixa.push(processo);   break;
+            case 2: normal.push(processo);  break;
+            case 3: urgente.push(processo); break;
+            default:
+                throw new IllegalArgumentException(
+                        "Prioridade inválida: " + processo.getPrioridade() +
+                        ". Use 1 (baixa), 2 (normal) ou 3 (urgente).");
+        }
     }
 
-    public int tamanhoTotal() { // [cite: 86]
+    public Processo pop() {
+        return pilhaMaisUrgente().pop();
+    }
+
+    public Processo peek() {
+        return pilhaMaisUrgente().peek();
+    }
+
+    public int tamanho() {
         return urgente.tamanho() + normal.tamanho() + baixa.tamanho();
     }
 
-    public void listarAgrupado() { // [cite: 89]
-        System.out.println("--- URGENTES ---"); urgente.imprimir();
-        System.out.println("--- NORMAIS ---"); normal.imprimir();
-        System.out.println("--- BAIXAS ---"); baixa.imprimir();
+    public boolean estaVazia() {
+        return tamanho() == 0;
+    }
+
+    public void listar() {
+        System.out.println("  --- Urgentes ---");
+        urgente.imprimir();
+        System.out.println("  --- Normais ---");
+        normal.imprimir();
+        System.out.println("  --- Baixa prioridade ---");
+        baixa.imprimir();
+    }
+
+    private PilhaProcesso pilhaMaisUrgente() {
+        if (!urgente.estaVazia()) return urgente;
+        if (!normal.estaVazia())  return normal;
+        if (!baixa.estaVazia())   return baixa;
+        throw new PilhaVaziaException("Não há processos pendentes em nenhuma fila de prioridade.");
     }
 }
