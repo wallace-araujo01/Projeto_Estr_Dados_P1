@@ -1,63 +1,48 @@
-import java.util.Scanner;
-
 public class CentralAtendimento {
-    private PilhaPrioridade pendentes = new PilhaPrioridade(); // Refatorado para Prioridade [cite: 91]
-    private PilhaProcesso historico = new PilhaProcesso(); // Auxiliar para Undo [cite: 63]
+    private final PilhaPrioridade pendentes;
+    private final PilhaProcesso   historico;
 
-    public void abrirProcesso(Processo p) {
-        pendentes.push(p);
-        // "Uma nova ação elimina o histórico de desfazer" [cite: 65]
-        while (!historico.estaVazia()) historico.pop(); 
-        System.out.println("Processo aberto com sucesso!");
+    public CentralAtendimento() {
+        this.pendentes = new PilhaPrioridade();
+        this.historico = new PilhaProcesso();
     }
 
-    public void atenderProximo() { // [cite: 66, 67]
-        try {
-            Processo p = pendentes.pop();
-            historico.push(p);
-            System.out.println("Atendendo agora: " + p);
-        } catch (PilhaVaziaException e) {
-            System.out.println(e.getMessage());
+    public void abrirProcesso(Processo processo) {
+        pendentes.push(processo);
+        limparHistorico();
+        System.out.println("  Processo aberto: " + processo);
+    }
+
+    public void atenderProximo() {
+        Processo atendido = pendentes.pop();
+        historico.push(atendido);
+        System.out.println("  Atendido: " + atendido);
+    }
+
+    public void desfazerUltimoAtendimento() {
+        if (historico.estaVazia()) {
+            throw new PilhaVaziaException("Nenhum atendimento para desfazer.");
+        }
+        Processo restaurado = historico.pop();
+        pendentes.push(restaurado);
+        System.out.println("  Atendimento desfeito — processo devolvido à fila: " + restaurado);
+    }
+
+    public void listarPendentes() {
+        System.out.println("=== Processos Pendentes (por prioridade) ===");
+        if (pendentes.estaVazia()) {
+            System.out.println("  (nenhum processo pendente)");
+        } else {
+            pendentes.listar();
         }
     }
 
-    public void desfazer() { // [cite: 68, 69]
-        try {
-            Processo p = historico.pop();
-            pendentes.push(p);
-            System.out.println("Atendimento desfeito. Processo retornou à fila.");
-        } catch (PilhaVaziaException e) {
-            System.out.println("Nada para desfazer.");
-        }
+    public void listarHistorico() {
+        System.out.println("=== Histórico de Atendimentos ===");
+        historico.imprimir();
     }
 
-    public static void main(String[] args) { // Menu Interativo [cite: 74]
-        CentralAtendimento central = new CentralAtendimento();
-        Scanner sc = new Scanner(System.in);
-        int opcao = 0;
-
-        do {
-            System.out.println("\n--- MENU CENTRAL ---");
-            System.out.println("1. Abrir Processo");
-            System.out.println("2. Atender Próximo");
-            System.out.println("3. Desfazer Último Atendimento");
-            System.out.println("4. Listar Pendentes");
-            System.out.println("0. Sair");
-            opcao = sc.nextInt();
-            sc.nextLine();
-
-            switch (opcao) {
-                case 1:
-                    System.out.print("Nome: "); String nome = sc.nextLine();
-                    System.out.print("Serviço: "); String serv = sc.nextLine();
-                    System.out.print("Prioridade (1-Baixa, 2-Normal, 3-Urgente): ");
-                    int prio = sc.nextInt();
-                    central.abrirProcesso(new Processo(nome, serv, prio, "21/04/2026 18:00"));
-                    break;
-                case 2: central.atenderProximo(); break;
-                case 3: central.desfazer(); break;
-                case 4: central.pendentes.listarAgrupado(); break;
-            }
-        } while (opcao != 0);
+    private void limparHistorico() {
+        while (!historico.estaVazia()) historico.pop();
     }
 }
