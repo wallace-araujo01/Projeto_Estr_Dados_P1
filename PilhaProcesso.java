@@ -1,24 +1,37 @@
 public class PilhaProcesso {
-    private VetorDinamico repositorio = new VetorDinamico();
-
-    public void push(Processo p) { repositorio.adicionar(p); } // [cite: 56]
-
-    public Processo pop() { // 
-        if (estaVazia()) throw new PilhaVaziaException("A pilha está vazia!");
-        return repositorio.removerFinal();
+    private final VetorDinamico vetor;
+    public PilhaProcesso() {
+        this.vetor = new VetorDinamico();
     }
 
-    public Processo peek() { // [cite: 58]
-        if (estaVazia()) throw new PilhaVaziaException("A pilha está vazia!");
-        return repositorio.get(repositorio.getTamanho() - 1);
+    public void push(Processo processo) {
+        vetor.inserir(processo);
     }
 
-    public boolean estaVazia() { return repositorio.getTamanho() == 0; }
-    public int tamanho() { return repositorio.getTamanho(); }
+    public Processo pop() {
+        if (vetor.estaVazio()) {
+            throw new PilhaVaziaException("Não é possível desempilhar: pilha vazia.");
+        }
+        return vetor.remover(vetor.tamanho() - 1);
+    }
 
-    public void imprimir() { // [cite: 59]
-        for (int i = repositorio.getTamanho() - 1; i >= 0; i--) {
-            System.out.println(repositorio.get(i));
+    public Processo peek() {
+        if (vetor.estaVazio()) {
+            throw new PilhaVaziaException("Não é possível consultar o topo: pilha vazia.");
+        }
+        return vetor.obter(vetor.tamanho() - 1);
+    }
+
+    public int tamanho()       { return vetor.tamanho(); }
+    public boolean estaVazia() { return vetor.estaVazio(); }
+
+    public void imprimir() {
+        if (estaVazia()) {
+            System.out.println("  (pilha vazia)");
+            return;
+        }
+        for (int i = vetor.tamanho() - 1; i >= 0; i--) {
+            System.out.printf("  %s%n", vetor.obter(i));
         }
     }
 }
