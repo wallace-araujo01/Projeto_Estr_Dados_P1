@@ -25,7 +25,7 @@ public class Processo {
     public int getPrioridade()   { return prioridade; }
     public String getDataHora()  { return dataHora; }
 
-    // Setters (protocolo não tem setter)
+    // Setters
     public void setSolicitante(String solicitante) { this.solicitante = solicitante; }
     public void setTipoServico(String tipoServico) { this.tipoServico = tipoServico; }
     public void setPrioridade(int prioridade)      { this.prioridade = prioridade; }
